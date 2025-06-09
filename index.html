@@ -1,0 +1,182 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RisaCha Labs</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #E8E8F8;
+            color: #2F2F4F;
+        }
+        .navbar {
+            background-color: #A8A8E0;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .navbar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .navbar li {
+            display: inline-block;
+            margin: 0 20px;
+        }
+        .navbar a {
+            color: #2F2F4F;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .navbar a:hover {
+            color: #483D8B;
+        }
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: #F0F0FF;
+        }
+        .hero h1 {
+            font-size: 36px;
+            color: #2F2F4F;
+        }
+        .hero p {
+            font-size: 18px;
+            color: #3C3C5C;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .tools-section {
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #FFFFFF;
+        }
+        .tools-section h2 {
+            color: #2F2F4F;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .tools-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .tool-card {
+            background-color: #F0F0FF;
+            padding: 20px;
+            border-radius: 8px;
+            width: 250px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .tool-card h3 {
+            color: #2F2F4F;
+            font-size: 20px;
+        }
+        .tool-card p {
+            color: #3C3C5C;
+            font-size: 16px;
+        }
+        .tool-card a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #B0B0E0;
+            color: #2F2F4F;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .tool-card a:hover {
+            background-color: #A0A0D0;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #A8A8E0;
+            color: #2F2F4F;
+            font-size: 14px;
+        }
+        footer a {
+            color: #483D8B;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="https://risacha.com">Home</a></li>
+            <li><a href="https://risacha.com/about-us/">About</a></li>
+            <li><a href="https://risacha.com/contact-us/">Contact</a></li>
+            <li><a href="https://risacha.com/privacy-policy/">Privacy Policy</a></li>
+        </ul>
+    </nav>
+    <section class="hero">
+        <h1>Welcome to RisaCha Labs</h1>
+        <p>Empowering traders and learners with cutting-edge analytical and educational tools for smarter financial decisions.</p>
+    </section>
+    <section class="tools-section">
+        <h2>Our Tools</h2>
+        <div class="tools-grid">
+            <div class="tool-card">
+                <h3>CauseGraph</h3>
+                <p>Analyze markets with advanced chart and CSV tools. Unlock premium insights for 10 USDT.</p>
+                <a href="https://causegraph.risacha.com">Explore CauseGraph</a>
+            </div>
+            <div class="tool-card">
+                <h3>Coming Soon</h3>
+                <p>More analytical tools to enhance your trading and learning experience.</p>
+                <a href="#">Stay Tuned</a>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2025 RisaCha Labs | <a href="mailto:admin@risacha.com">Contact Support</a></p>
+    </footer>
+</body>
+</html>
